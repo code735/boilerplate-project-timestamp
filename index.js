@@ -25,28 +25,33 @@ app.get("/api/hello", function (req, res) {
 });
 
 
-app.get("/api/:date", function (req, res) {
+app.get("/api/:date?", function (req, res) {
   let inputDate = req.params.date;
   
-  if (!isNaN(inputDate)) {
-    inputDate = parseInt(inputDate); // Convert string to number
+  // Check if the input date is provided
+  if (!inputDate) {
+    // If date parameter is empty, return current time
+    inputDate = new Date();
+  } else {
+    // Check if the input date is in Unix timestamp format (milliseconds)
+    if (!isNaN(inputDate)) {
+      inputDate = parseInt(inputDate); // Convert string to number
+    }
+    inputDate = new Date(inputDate);
   }
   
-  const date = new Date(inputDate);
-  
   // Check if the date is valid
-  if (isNaN(date.getTime())) {
+  if (isNaN(inputDate.getTime())) {
     res.json({ error: "Invalid Date" });
   } else {
-    const unixDate = date.getTime();
+    const unixDate = inputDate.getTime();
+    const utcDate = inputDate.toUTCString();
     res.json({
       "unix": unixDate,
-      "utc": date.toUTCString()
+      "utc": utcDate
     });
   }
 });
-
-
 
 
 // Listen on port set in environment variable or default to 3000
